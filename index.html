@@ -140,17 +140,33 @@
       font-size: 0.85rem;
     }
     .nav-link:hover { text-decoration: underline; }
+    .input-row input.error {
+      border-color: #e74c3c;
+      animation: shake 0.3s ease;
+    }
+    .input-error-msg {
+      color: #e74c3c;
+      font-size: 0.78rem;
+      margin: -12px 0 8px 2px;
+      min-height: 18px;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>📋 Task Tracker <span class="badge">DEMO</span></h1>
-    <p class="subtitle">SDLC Demo App v1.0 — Simple HTML only</p>
+    <p class="subtitle">SDLC Demo App v1.1 — Fix: blank task input validation (SMARTPAY-50)</p>
 
     <div class="input-row">
-      <input type="text" id="taskInput" placeholder="Add a new task..." onkeydown="if(event.key==='Enter') addTask()" />
+      <input type="text" id="taskInput" placeholder="Add a new task..." maxlength="200" onkeydown="if(event.key==='Enter') addTask()" oninput="clearError()" />
       <button onclick="addTask()">+</button>
     </div>
+    <div class="input-error-msg" id="inputError"></div>
 
     <div class="filters">
       <button class="active" onclick="setFilter('all', this)">All</button>
@@ -205,10 +221,31 @@
     function addTask() {
       const inp = document.getElementById('taskInput');
       const text = inp.value.trim();
-      if (!text) return;
+      if (!text) {
+        showError(inp, inp.value.length === 0
+          ? 'Task cannot be empty.'
+          : 'Task cannot be blank or whitespace only.');
+        return;
+      }
+      if (text.length > 200) {
+        showError(inp, 'Task is too long (max 200 characters).');
+        return;
+      }
+      clearError();
       tasks.push({ id: Date.now(), text, done: false });
       inp.value = '';
       render();
+    }
+
+    function showError(inp, msg) {
+      inp.classList.add('error');
+      document.getElementById('inputError').textContent = msg;
+      setTimeout(() => inp.classList.remove('error'), 400);
+    }
+
+    function clearError() {
+      document.getElementById('taskInput').classList.remove('error');
+      document.getElementById('inputError').textContent = '';
     }
 
     function toggleTask(id) {
