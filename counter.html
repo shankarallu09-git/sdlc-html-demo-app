@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counter App - SDLC Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { font-size: 1.8rem; color: #c0392b; margin-bottom: 6px; }
+    .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 32px; }
+    .badge {
+      display: inline-block;
+      background: #f5576c;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .display {
+      font-size: 5rem;
+      font-weight: 700;
+      color: #333;
+      margin: 20px 0;
+      line-height: 1;
+      transition: transform 0.1s;
+    }
+    .display.bump { transform: scale(1.15); }
+    .label {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 28px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .btn {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+    .btn:active { transform: scale(0.94); }
+    .btn-minus { background: #e74c3c; color: white; }
+    .btn-reset { background: #ecf0f1; color: #666; font-size: 1rem; }
+    .btn-plus  { background: #27ae60; color: white; }
+    .step-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .step-row input {
+      width: 60px;
+      padding: 5px 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .step-row input:focus { border-color: #f5576c; }
+    .history {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.78rem;
+      color: #aaa;
+      min-height: 32px;
+      text-align: left;
+    }
+    .history span { color: #f5576c; font-weight: 600; }
+    .nav-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #f5576c;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .nav-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔢 Counter <span class="badge">DEMO</span></h1>
+    <p class="subtitle">SDLC Demo App v1.0 — Simple HTML only</p>
+
+    <div class="display" id="display">0</div>
+    <div class="label">Current Count</div>
+
+    <div class="step-row">
+      Step: <input type="number" id="step" value="1" min="1" max="100" />
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-minus" onclick="change(-1)" title="Decrement">−</button>
+      <button class="btn btn-reset" onclick="reset()" title="Reset">↺</button>
+      <button class="btn btn-plus"  onclick="change(1)"  title="Increment">+</button>
+    </div>
+
+    <div class="history" id="history">History will appear here…</div>
+
+    <a class="nav-link" href="index.html">← Back to Task Tracker</a>
+  </div>
+
+  <script>
+    let count = 0;
+    const MAX_HISTORY = 5;
+    let log = [];
+
+    function getStep() {
+      const s = parseInt(document.getElementById('step').value, 10);
+      return isNaN(s) || s < 1 ? 1 : s;
+    }
+
+    function change(dir) {
+      const step = getStep();
+      const prev = count;
+      count += dir * step;
+      const action = dir > 0 ? `+${step}` : `${dir * step}`;
+      log.unshift(`${prev} → ${count}  (${action})`);
+      if (log.length > MAX_HISTORY) log.pop();
+      updateUI();
+    }
+
+    function reset() {
+      log.unshift(`Reset from ${count} → 0`);
+      if (log.length > MAX_HISTORY) log.pop();
+      count = 0;
+      updateUI();
+    }
+
+    function updateUI() {
+      const d = document.getElementById('display');
+      d.textContent = count;
+      d.classList.add('bump');
+      setTimeout(() => d.classList.remove('bump'), 120);
+      d.style.color = count < 0 ? '#e74c3c' : count > 0 ? '#27ae60' : '#333';
+      document.getElementById('history').innerHTML =
+        log.map((l, i) => i === 0 ? `<span>${l}</span>` : l).join('<br>') || 'History will appear here…';
+    }
+  </script>
+</body>
+</html>
